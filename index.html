@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Timer Settings</title>
+    <style>
+        body {
+            background: #18181b;
+            color: #f4f4f5;
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        .section {
+            background: #27272a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #3f3f46;
+        }
+
+        h3 {
+            color: #c8aa6e;
+            margin: 0 0 10px 0;
+            font-size: 1em;
+            text-transform: uppercase;
+        }
+
+        select,
+        input[type="number"] {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        label {
+            cursor: pointer;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        input[type="radio"] {
+            accent-color: #c8aa6e;
+            transform: scale(1.2);
+        }
+
+        .status-msg {
+            text-align: center;
+            color: #a1a1aa;
+            font-size: 0.8em;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="section" style="text-align: center;">
+    <label style="justify-content: center; font-size: 1.1em; color: #c8aa6e; font-weight: bold;">
+        <input type="checkbox" id="global-min10" onchange="handleInput()">
+        10+ Minute (Unleashed TP)
+    </label>
+
+    <hr style="border-color: #444; margin: 15px 0;">
+
+    <div style="color: #aaa; font-size: 0.9em;">ORIENTATION</div>
+    <div class="radio-group">
+        <label><input type="radio" name="orientation" value="horizontal" checked onchange="handleInput()">
+            Horizontal ⮕</label>
+        <label><input type="radio" name="orientation" value="vertical" onchange="handleInput()"> Vertical ⬇</label>
+    </div>
+</div>
+
+<div id="controls"></div>
+<div class="status-msg" id="status">Starting...</div>
+
+<script>
+    const ROLES = ['TOP', 'JUNGLE', 'MID', 'ADC', 'SUPPORT'];
+    const SPELLS = ['Flash', 'Ignite', 'Teleport', 'Ghost', 'Heal', 'Cleanse', 'Exhaust', 'Barrier', 'Smite'];
+
+    let appData = {
+        roles: {},
+        min10: false,
+        orientation: 'horizontal',
+        scale: 1.0
+    };
+
+    ROLES.forEach(r => {
+        appData.roles[r] = { spell1: 'Teleport', spell2: 'Flash', level: 1, boots: false, cosmic: false };
+        if (r === 'JUNGLE') appData.roles[r].spell1 = 'Smite';appData.roles[r].spell2 = 'Flash';
+        if (r === 'ADC') appData.roles[r].spell1 = 'Barrier';
+        if (r === 'SUPPORT') appData.roles[r].spell1 = 'Heal';
+    });
+
+    window.api.send('load-config');
+
+    window.api.on('config-loaded', (savedData) => {
+        if (savedData) {
+            appData = { ...appData, ...savedData };
+        }
+        initUI();
+        sendUpdate();
+    });
+
+    function initUI() {
+        const container = document.getElementById('controls');
+        container.innerHTML = '';
+
+        ROLES.forEach(role => {
+            const div = document.createElement('div');
+            div.className = 'section';
+            const rData = appData.roles[role] || { spell1: 'Flash', spell2: 'Teleport', level: 1, boots: false, cosmic: false };
+
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                    <h3>${role}</h3>
+                    <div style="font-size:0.8em">Lvl <input type="number" min="1" max="18" value="${rData.level}" style="width:35px" onchange="updateRole('${role}', 'level', this.value)"></div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:10px">
+                    <select id="${role}-spell1" onchange="updateRole('${role}', 'spell1', this.value)">${getOptions(rData.spell1)}</select>
+                    <select id="${role}-spell2" onchange="updateRole('${role}', 'spell2', this.value)">${getOptions(rData.spell2)}</select>
+                </div>
+                <div style="display:flex; justify-content:space-around">
+                    <label><input type="checkbox" ${rData.cosmic ? 'checked' : ''} onchange="updateRole('${role}', 'cosmic', this.checked)"> Cosmic</label>
+                    <label><input type="checkbox" ${rData.boots ? 'checked' : ''} onchange="updateRole('${role}', 'boots', this.checked)"> Ionian</label>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+        document.getElementById('global-min10').checked = appData.min10;
+        document.querySelector(`input[name="orientation"][value="${appData.orientation}"]`).checked = true;
+        document.getElementById('status').innerText = "Ready.";
+    }
+
+    function getOptions(sel) {
+        return SPELLS.map(s => `<option value="${s}" ${s === sel ? 'selected' : ''}>${s}</option>`).join('');
+    }
+
+    window.updateRole = (role, key, value) => {
+        if (key === 'level') value = parseInt(value);
+        if (!appData.roles[role]) appData.roles[role] = {};
+
+        if (role === 'JUNGLE' && (key === 'spell1' || key === 'spell2')) {
+            const otherKey = key === 'spell1' ? 'spell2' : 'spell1';
+            const currentOther = appData.roles[role][otherKey];
+
+            if (value !== 'Smite' && currentOther !== 'Smite') {
+                appData.roles[role][otherKey] = 'Smite';
+                const el = document.getElementById(`${role}-${otherKey}`);
+                if (el) el.value = 'Smite';
+            }
+        }
+
+        appData.roles[role][key] = value;
+        handleInput();
+    }
+
+    window.handleInput = () => {
+        appData.min10 = document.getElementById('global-min10').checked;
+        appData.orientation = document.querySelector('input[name="orientation"]:checked').value;
+        sendUpdate();
+        saveConfig();
+    }
+
+    function sendUpdate() {
+        window.api.send('settings-changed', appData);
+    }
+
+    function saveConfig() {
+        window.api.send('save-config', appData);
+        document.getElementById('status').innerText = "Saved.";
+    }
+
+    window.api.on('sync-scale', (newScale) => {
+        appData.scale = newScale;
+        window.api.send('save-config', appData);
+    });
+
+</script>
+</body>
+
+</html>
