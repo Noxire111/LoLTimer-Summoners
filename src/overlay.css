@@ -1,0 +1,107 @@
+body {
+    margin: 0;
+    padding: 20px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0);
+    font-family: 'Segoe UI', sans-serif;
+    user-select: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+#scalable-wrapper {
+    position: relative;
+    transform-origin: top left;
+    width: fit-content;
+    height: fit-content;
+    margin: 0;
+}
+
+.overlay-box {
+    position: relative;
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 15px 10px 10px;
+    display: flex;
+    gap: 10px;
+    -webkit-app-region: drag;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+.overlay-box.horizontal { flex-direction: row; }
+.overlay-box.horizontal .role-group { flex-direction: column; }
+.overlay-box.horizontal .role-label { writing-mode: horizontal-tb; margin-bottom: 5px; }
+
+.overlay-box.vertical { flex-direction: column; }
+.overlay-box.vertical .role-group { flex-direction: row; }
+.overlay-box.vertical .role-label { width: 30px; display: flex; justify-content: flex-end; margin-right: 8px; }
+
+.role-group { display: flex; align-items: center; }
+
+.role-label {
+    color: #c8aa6e;
+    font-weight: 800;
+    font-size: 0.75em;
+    text-shadow: 1px 1px 2px black;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.spell-box {
+    width: 48px;
+    height: 48px;
+    position: relative;
+    border: 2px solid #333;
+    border-radius: 6px;
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+    background: #000;
+    margin: 2px;
+    overflow: hidden;
+}
+
+.spell-box:hover { border-color: #fff; }
+.spell-box:active { filter: brightness(0.8); }
+.spell-box img { width: 100%; height: 100%; object-fit: cover; }
+
+.timer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    font-weight: bold;
+    font-size: 1.1em;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 0 3px black;
+}
+
+.timer.active { display: flex; }
+
+.unleashed {
+    border-color: #a855f7 !important;
+    box-shadow: 0 0 8px #a855f7;
+}
+
+.resize-handle {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 18px; height: 18px;
+    cursor: se-resize;
+    background: linear-gradient(135deg, transparent 50%, #c8aa6e 50%);
+    opacity: 0.8;
+    border-bottom-right-radius: 9px;
+    -webkit-app-region: no-drag;
+    z-index: 100;
+}
+
+.resize-handle:hover {
+    opacity: 1;
+    filter: brightness(1.2);
+    transform: scale(1.1);
+}

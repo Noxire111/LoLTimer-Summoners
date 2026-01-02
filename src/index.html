@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Timer Settings</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="global-header">
+    <label class="checkbox-label">
+        <input type="checkbox" id="global-min10">
+        10+ Minute (Unleashed TP)
+    </label>
+
+    <div class="orientation-selector">
+        <label><input type="radio" name="orientation" value="horizontal"> Horizontal</label>
+        <label><input type="radio" name="orientation" value="vertical"> Vertical</label>
+    </div>
+
+    <div id="status">Ready</div>
+</div>
+
+<div id="controls"></div>
+
+<div id="spell-picker-modal" class="hidden">
+    <div class="picker-content">
+        <div class="modal-title">Select Spell</div>
+        <div class="picker-grid" id="picker-grid"></div>
+        <button id="close-modal-btn" class="close-modal">Cancel</button>
+    </div>
+</div>
+
+<script src="preload.js"></script>
+<script src="settings.js" defer></script>
+</body>
+</html>

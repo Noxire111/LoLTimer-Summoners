@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "loltimer",
+  "version": "0.1.0",
+  "identifier": "com.loltimer.app",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "url": "index.html",
+        "title": "LoL Timer Settings",
+        "width": 430,
+        "height": 457,
+        "resizable": true,
+        "maximizable": false
+      },
+      {
+        "label": "overlay",
+        "url": "overlay.html",
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "shadow": false,
+        "resizable": false,
+        "visible": true,
+        "width": 600,
+        "height": 200
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' https://ddragon.leagueoflegends.com asset: blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon.ico"
+    ]
+  }
+}
